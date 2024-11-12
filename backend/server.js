@@ -250,7 +250,7 @@ app.post("/api/mock/upload", upload.single("config"), (req, res) => {
 });
 
 // Get list of available configurations
-app.get("/mock/configs", async (req, res) => {
+app.get("/api/mock/configs", async (req, res) => {
   try {
     const configsDir = path.join(__dirname, "configs");
     if (!fs.existsSync(configsDir)) {
@@ -279,7 +279,7 @@ app.get("/mock/configs", async (req, res) => {
 });
 
 // Delete config file
-app.delete("/mock/configs/:filename", async (req, res) => {
+app.delete("/api/mock/configs/:filename", async (req, res) => {
   try {
     const { filename } = req.params;
     const configPath = path.join(__dirname, "configs", filename);
