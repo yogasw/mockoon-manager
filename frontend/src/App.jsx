@@ -5,6 +5,7 @@ import UploadConfig from './components/UploadConfig';
 import NewInstance from './components/NewInstance';
 import InstanceList from './components/InstanceList';
 import ConfigList from './components/ConfigList';
+import AuthError from './components/AuthError';
 import { getMockStatus, getConfigs } from './api/mockoonApi';
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
   const [configs, setConfigs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAuthError, setIsAuthError] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -23,9 +25,14 @@ function App() {
       setInstances(statusData);
       setConfigs(configsData);
       setError(null);
+      setIsAuthError(false);
     } catch (error) {
-      setError('Failed to fetch data. Please check your connection.');
-      console.error('Error fetching data:', error);
+      if (error.response?.status === 401) {
+        setIsAuthError(true);
+      } else {
+        setError('Failed to fetch data. Please check your connection.');
+        console.error('Error fetching data:', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -36,6 +43,10 @@ function App() {
     const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  if (isAuthError) {
+    return <AuthError />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -49,7 +60,6 @@ function App() {
         )}
         <div className="space-y-6">
           <UploadConfig onUploadSuccess={fetchData} />
-          {/* Add ConfigList component */}
           <ConfigList configs={configs} onConfigDelete={fetchData} />
           <NewInstance configs={configs} onStart={fetchData} />
           <div className="bg-white rounded-lg shadow">
