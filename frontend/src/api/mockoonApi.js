@@ -35,3 +35,8 @@ export const stopMockServer = async (port) => {
   });
   return response.data;
 };
+
+export const deleteConfig = async (filename) => {
+  const response = await axios.delete(`${API_URL}/mock/configs/${filename}`);
+  return response.data;
+};

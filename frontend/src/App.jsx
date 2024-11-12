@@ -4,6 +4,7 @@ import Header from './components/Header';
 import UploadConfig from './components/UploadConfig';
 import NewInstance from './components/NewInstance';
 import InstanceList from './components/InstanceList';
+import ConfigList from './components/ConfigList';
 import { getMockStatus, getConfigs } from './api/mockoonApi';
 
 function App() {
@@ -48,6 +49,8 @@ function App() {
         )}
         <div className="space-y-6">
           <UploadConfig onUploadSuccess={fetchData} />
+          {/* Add ConfigList component */}
+          <ConfigList configs={configs} onConfigDelete={fetchData} />
           <NewInstance configs={configs} onStart={fetchData} />
           <div className="bg-white rounded-lg shadow">
             <div className="p-6">
