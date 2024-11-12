@@ -21,6 +21,11 @@ export const uploadConfig = async (formData) => {
   return response.data;
 };
 
+export const deleteConfig = async (filename) => {
+  const response = await axios.delete(`${API_URL}/mock/configs/${filename}`);
+  return response.data;
+};
+
 export const startMockServer = async (port, configFile) => {
   const response = await axios.post(`${API_URL}/mock/start`, {
     port,
