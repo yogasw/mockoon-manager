@@ -3,7 +3,7 @@ import { Upload } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { uploadConfig } from '../api/mockoonApi';
 
-export const UploadConfig = ({ onUploadSuccess }) => {
+const UploadConfig = ({ onUploadSuccess }) => {
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -21,7 +21,7 @@ export const UploadConfig = ({ onUploadSuccess }) => {
       toast.success('Configuration uploaded successfully');
       onUploadSuccess();
     } catch (error) {
-      toast.error(error.message || 'Failed to upload configuration');
+      toast.error(error.response?.data?.error || 'Failed to upload configuration');
     }
   };
 

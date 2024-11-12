@@ -1,3 +1,8 @@
+import React, { useState } from 'react';
+import { Plus } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { startMockServer } from '../api/mockoonApi';
+
 const NewInstance = ({ configs, onStart }) => {
   const [port, setPort] = useState('');
   const [selectedConfig, setSelectedConfig] = useState('');
@@ -81,3 +86,5 @@ const NewInstance = ({ configs, onStart }) => {
     </div>
   );
 };
+
+export default NewInstance;
