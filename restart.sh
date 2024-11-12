@@ -9,4 +9,5 @@ npm start
 
 # Frontend
 cd /root/mockoon-manager/frontend
+npm run build
 npm start
