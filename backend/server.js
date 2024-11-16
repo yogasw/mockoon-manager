@@ -42,8 +42,8 @@ const PORT = process.env.PORT || 3500;
 // Port validation function
 const isPortSafe = (port) => {
   const portNum = parseInt(port);
-  // Avoid system ports and ensure reasonable range
-  return portNum >= 1024 && portNum <= 65535;
+  // Check if port is in the allowed range (9001-9999)
+  return portNum >= 9001 && portNum <= 9999;
 };
 
 // Check if port is in use
@@ -104,15 +104,15 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "healthy" });
 });
 
-// Start mock server
+// Start mock server endpoint
 app.post("/api/mock/start", async (req, res) => {
   const { port, configFile } = req.body;
 
   try {
-    // Validate port
-    if (!port || !isPortSafe(port)) {
+    // Validate port if provided
+    if (port && !isPortSafe(port)) {
       return res.status(400).json({
-        error: "Invalid port. Port must be between 1024 and 65535.",
+        error: "Invalid port. Port must be between 9001 and 9999.",
       });
     }
 
@@ -225,6 +225,17 @@ app.post("/api/mock/upload", upload.single("config"), (req, res) => {
       __dirname,
       process.env.CONFIGS_DIR || "configs"
     );
+
+    // Check if file already exists
+    const existingFiles = fs.readdirSync(configsDir);
+    if (existingFiles.includes(req.file.filename)) {
+      // Delete the temporarily uploaded file
+      fs.unlinkSync(req.file.path);
+      return res.status(409).json({ 
+        error: "A configuration with this name already exists. Please upload with a different filename." 
+      });
+    }
+
     if (!fs.existsSync(configsDir)) {
       fs.mkdirSync(configsDir, { recursive: true });
     }
@@ -238,6 +249,10 @@ app.post("/api/mock/upload", upload.single("config"), (req, res) => {
       message: "Configuration file uploaded successfully",
     });
   } catch (error) {
+    // Clean up any uploaded file if it exists
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
     console.error("Error uploading file:", error);
     res.status(500).json({ error: error.message });
   }
@@ -300,6 +315,25 @@ app.delete("/api/mock/configs/:filename", async (req, res) => {
       success: true,
       message: `Configuration ${filename} deleted successfully`,
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Download config file
+app.get("/api/mock/configs/:filename/download", async (req, res) => {
+  try {
+    const { filename } = req.params;
+    const configPath = path.join(__dirname, "configs", filename);
+
+    // Check if file exists
+    if (!fs.existsSync(configPath)) {
+      return res.status(404).json({ error: "Configuration file not found" });
+    }
+
+    // Read and send the file
+    const fileContent = fs.readFileSync(configPath, 'utf8');
+    res.json(JSON.parse(fileContent));
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

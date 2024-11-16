@@ -1,0 +1,102 @@
+{
+  "uuid": "b85c5c94-86b4-4c5e-9247-d145c6bd0000",
+  "lastMigration": 27,
+  "name": "Sample API",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3000,
+  "hostname": "0.0.0.0",
+  "routes": [
+    {
+      "uuid": "1a2b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p",
+      "documentation": "Health check endpoint",
+      "method": "get",
+      "endpoint": "healthz",
+      "responses": [
+        {
+          "uuid": "7p8o9n0m-1l2k-3j4i-5h6g-7f8e9d0c1b2a",
+          "body": "{\n  \"status\": \"OK\",\n  \"timestamp\": \"{{now 'iso'}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success response",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "2b3c4d5e-6f7g-8h9i-0j1k-2l3m4n5o6p7q",
+      "documentation": "Generate UUID endpoint",
+      "method": "get",
+      "endpoint": "generates",
+      "responses": [
+        {
+          "uuid": "8q9p0o1n-2m3l-4k5j-6i7h-8g9f0e1d2c3b",
+          "body": "{\n  \"status\": \"OK\",\n  \"data\": \"{{faker 'string.uuid'}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success response",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ]
+}

@@ -22,9 +22,7 @@ api.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      // Handle unauthorized error
       console.error('Authentication failed');
-      // You might want to redirect to login or show an error message
     }
     return Promise.reject(error);
   }
@@ -47,6 +45,10 @@ export const uploadConfig = async (formData) => {
     },
   });
   return response.data;
+};
+
+export const downloadConfig = async (filename) => {
+  return await api.get(`/mock/configs/${filename}/download`);
 };
 
 export const startMockServer = async (port, configFile) => {

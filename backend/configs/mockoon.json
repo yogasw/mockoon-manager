@@ -11,7 +11,7 @@
       "uuid": "5f5b0d00-0000-0000-0000-000000000001",
       "documentation": "Health check endpoint",
       "method": "get",
-      "endpoint": "health",
+      "endpoint": "healthz",
       "responses": [
         {
           "uuid": "5f5b0d00-0000-0000-0000-000000000002",

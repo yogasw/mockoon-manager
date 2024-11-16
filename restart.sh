@@ -5,6 +5,7 @@ pm2 kill
 
 # Backend
 cd /root/mockoon-manager/backend
+npm install
 npm start
 
 # Frontend

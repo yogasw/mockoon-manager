@@ -1,69 +1,56 @@
 // frontend/src/components/NewInstance.jsx
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { startMockServer } from '../api/mockoonApi';
+import { getAvailablePort } from '../utils/portUtils';
+import { instancesStore } from '../stores/instancesStore';
 
 const NewInstance = ({ configs, onStart }) => {
-  const [port, setPort] = useState('');
   const [selectedConfig, setSelectedConfig] = useState('');
-  const [portError, setPortError] = useState('');
-
-  const validatePort = (value) => {
-    const portNum = parseInt(value);
-    if (isNaN(portNum) || portNum < 1024 || portNum > 65535) {
-      setPortError('Port must be between 1024 and 65535');
-      return false;
-    }
-    setPortError('');
-    return true;
-  };
-
-  const handlePortChange = (e) => {
-    const value = e.target.value;
-    setPort(value);
-    validatePort(value);
-  };
+  const [isStarting, setIsStarting] = useState(false);
 
   const handleStart = async () => {
-    if (!validatePort(port)) return;
-
+    if (!selectedConfig) return;
+    
     try {
-      await startMockServer(parseInt(port), selectedConfig);
+      setIsStarting(true);
+      const port = await getAvailablePort();
+
+      // Optimistically add the instance
+      instancesStore.addOptimisticInstance({
+        port,
+        configFile: selectedConfig,
+        startTime: new Date(),
+        uptimeFormatted: '0s',
+        _fadeIn: true,
+        _optimistic: true
+      });
+
+      // Actually start the server
+      await startMockServer(port, selectedConfig);
+      
       toast.success(`Started mock server on port ${port}`);
-      setPort('');
       setSelectedConfig('');
       onStart();
     } catch (error) {
+      // If there's an error, remove the optimistic instance
+      instancesStore.removeOptimisticInstance();
       toast.error(error.response?.data?.error || 'Failed to start mock server');
+    } finally {
+      setIsStarting(false);
     }
   };
 
   return (
-    <div className="mb-8 p-6 bg-white rounded-lg shadow">
-      <h2 className="text-lg font-semibold mb-4">Start New Instance</h2>
+    <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
+      <h2 className="text-lg font-semibold mb-4 text-white">Start New Instance</h2>
       <div className="flex gap-4">
         <div className="flex-1">
-          <input
-            type="number"
-            value={port}
-            onChange={handlePortChange}
-            placeholder="Port number (1024-65535)"
-            className={`px-3 py-2 border rounded w-full ${
-              portError ? 'border-red-500' : ''
-            }`}
-            min="1024"
-            max="65535"
-          />
-          {portError && (
-            <p className="text-sm text-red-500 mt-1">{portError}</p>
-          )}
-        </div>
-        <div className="flex-2">
           <select
             value={selectedConfig}
             onChange={(e) => setSelectedConfig(e.target.value)}
-            className="px-3 py-2 border rounded w-full"
+            className="px-3 py-2 bg-gray-700 border border-gray-600 rounded w-full text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Select config file</option>
             {configs
@@ -77,11 +64,11 @@ const NewInstance = ({ configs, onStart }) => {
         </div>
         <button
           onClick={handleStart}
-          disabled={!port || !selectedConfig || !!portError}
-          className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={!selectedConfig || isStarting}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          <Plus className="w-4 h-4" />
-          Start
+          <Play className="w-4 h-4" />
+          {isStarting ? 'Starting...' : 'Start'}
         </button>
       </div>
     </div>
