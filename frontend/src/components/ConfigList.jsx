@@ -51,12 +51,10 @@ const ConfigList = ({ configs, onConfigDelete }) => {
     try {
       const response = await downloadConfig(filename);
       
-      // Create blob from the response data
       const blob = new Blob([JSON.stringify(response.data, null, 2)], {
         type: 'application/json'
       });
 
-      // Create download link
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -86,19 +84,19 @@ const ConfigList = ({ configs, onConfigDelete }) => {
           {configs.map(config => (
             <div key={config.name} 
                  className="flex items-center justify-between p-4 bg-gray-700 rounded hover:bg-gray-600 transition-colors">
-              <div className="flex-1">
-                <div className="font-medium text-white">{config.name}</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-white truncate">{config.name}</div>
                 <div className="text-sm text-gray-300">
                   Size: {config.size}
                 </div>
                 {config.inUse && (
                   <div className="flex items-center text-sm text-yellow-500 mt-1">
-                    <AlertCircle className="w-4 h-4 mr-1" />
+                    <AlertCircle className="w-4 h-4 mr-1 flex-shrink-0" />
                     Currently in use
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 ml-4">
                 <button
                   onClick={() => handleDownload(config.name)}
                   disabled={downloading.has(config.name)}
