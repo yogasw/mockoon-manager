@@ -92,6 +92,7 @@ const InstanceItem = ({ instance, onStop }) => {
         <div className="text-sm text-gray-300">
           Uptime: {instance.uptimeFormatted}
         </div>
+        <div className="font-medium text-white">Base URL:</div>
         <BaseUrl port={instance.port} />
       </div>
     </div>

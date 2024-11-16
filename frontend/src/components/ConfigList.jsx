@@ -1,9 +1,10 @@
 // frontend/src/components/ConfigList.jsx
 import React, { useState } from 'react';
-import { Trash2, AlertCircle, Download } from 'lucide-react';
+import { Trash2, AlertCircle, Download, Eye } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { deleteConfig, downloadConfig } from '../api/mockoonApi';
 
+// Confirm Dialog Component
 const ConfirmDialog = ({ isOpen, onClose, onConfirm, filename }) => {
   if (!isOpen) return null;
 
@@ -31,9 +32,12 @@ const ConfirmDialog = ({ isOpen, onClose, onConfirm, filename }) => {
   );
 };
 
+const ConfigViewer = React.lazy(() => import('./ConfigViewer'));
+
 const ConfigList = ({ configs, onConfigDelete }) => {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [downloading, setDownloading] = useState(new Set());
+  const [viewingConfig, setViewingConfig] = useState(null);
 
   const handleDelete = async (filename) => {
     try {
@@ -76,6 +80,18 @@ const ConfigList = ({ configs, onConfigDelete }) => {
     }
   };
 
+  const handleView = async (filename) => {
+    try {
+      const response = await downloadConfig(filename);
+      setViewingConfig({
+        ...response.data,
+        name: filename
+      });
+    } catch (error) {
+      toast.error('Failed to load configuration');
+    }
+  };
+
   return (
     <div className="bg-gray-800 rounded-lg shadow-lg">
       <div className="p-6">
@@ -97,6 +113,13 @@ const ConfigList = ({ configs, onConfigDelete }) => {
                 )}
               </div>
               <div className="flex items-center gap-2 ml-4">
+                <button
+                  onClick={() => handleView(config.name)}
+                  className="p-2 text-white hover:bg-blue-900/50 rounded transition-colors"
+                  title="View configuration"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
                 <button
                   onClick={() => handleDownload(config.name)}
                   disabled={downloading.has(config.name)}
@@ -130,6 +153,19 @@ const ConfigList = ({ configs, onConfigDelete }) => {
         onConfirm={() => handleDelete(confirmDelete)}
         filename={confirmDelete}
       />
+
+      {viewingConfig && (
+        <React.Suspense fallback={
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="text-white">Loading...</div>
+          </div>
+        }>
+          <ConfigViewer 
+            config={viewingConfig} 
+            onClose={() => setViewingConfig(null)} 
+          />
+        </React.Suspense>
+      )}
     </div>
   );
 };
