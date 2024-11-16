@@ -57,6 +57,7 @@ const InstanceList = ({ instances, onStop }) => {
         >
           <div>
             <HealthLink port={instance.port} />
+            <div className="font-medium text-white mt-2">Base URL: {window.location.origin}/{instance.port}/</div>
             <div className="font-medium text-white mt-2">Port: {instance.port}</div>
             <div className="text-sm text-gray-300">Config: {instance.configFile}</div>
             <div className="text-sm text-gray-300">
