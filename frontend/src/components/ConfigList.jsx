@@ -1,3 +1,4 @@
+// frontend/src/components/ConfigList.jsx
 import React, { useState } from 'react';
 import { Trash2, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';

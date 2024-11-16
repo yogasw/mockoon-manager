@@ -1,3 +1,4 @@
+// backend/server.js
 require("dotenv").config();
 const express = require("express");
 const multer = require("multer");
@@ -13,14 +14,7 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: [
-    "http://localhost:3000",
-    "http://localhost:3500",
-    "http://localhost:8080",
-    "http://192.168.1.121:3000",
-    "http://192.168.1.121:3500",
-    "http://192.168.1.121:8080",
-  ],
+  origin: ["*"],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
   optionsSuccessStatus: 204,

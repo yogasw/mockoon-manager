@@ -1,3 +1,4 @@
+// frontend/src/components/AuthError.jsx
 import React from 'react';
 import { ShieldAlert } from 'lucide-react';
 

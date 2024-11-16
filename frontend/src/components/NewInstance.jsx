@@ -1,3 +1,4 @@
+// frontend/src/components/NewInstance.jsx
 import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { toast } from 'react-hot-toast';

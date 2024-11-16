@@ -1,3 +1,4 @@
+// frontend/src/components/InstanceList.jsx
 import React from 'react';
 import { Square } from 'lucide-react';
 import { toast } from 'react-hot-toast';
