@@ -1,7 +1,6 @@
 // frontend/src/hooks/useDataFetching.js
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getMockStatus, getConfigs } from '../api/mockoonApi';
-import { instancesStore } from '../stores/instancesStore';
 
 export const createEventEmitter = () => {
   const listeners = new Set();
@@ -17,41 +16,13 @@ export const createEventEmitter = () => {
   };
 };
 
-export const syncEmitter = createEventEmitter();
+export const stateChangeEmitter = createEventEmitter();
 
 export const useInstanceStatus = (interval = 5000) => {
   const [instances, setInstances] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const prevInstancesRef = useRef(instances);
-
-  const mergeInstances = (newInstances) => {
-    const merged = newInstances.map(instance => {
-      const prevInstance = prevInstancesRef.current.find(
-        prev => prev.port === instance.port
-      );
-      return {
-        ...instance,
-        _fadeIn: !prevInstance
-      };
-    });
-
-    // Add optimistic instance if it exists
-    const optimisticInstance = instancesStore.getOptimisticInstance();
-    if (optimisticInstance) {
-      // Check if the optimistic instance is now in the real data
-      const isReal = merged.some(instance => instance.port === optimisticInstance.port);
-      if (!isReal) {
-        merged.push(optimisticInstance);
-      } else {
-        // If it's now real, remove it from optimistic store
-        instancesStore.removeOptimisticInstance();
-      }
-    }
-
-    prevInstancesRef.current = merged;
-    return merged;
-  };
 
   const fetchInstances = useCallback(async (isInitial = false) => {
     try {
@@ -61,48 +32,61 @@ export const useInstanceStatus = (interval = 5000) => {
 
       const statusData = await getMockStatus();
       
-      if (isInitial) {
-        setInstances(mergeInstances(statusData));
+      const prevPorts = new Set(prevInstancesRef.current.map(i => i.port));
+      const newPorts = new Set(statusData.map(i => i.port));
+      const hasChanged = prevPorts.size !== newPorts.size || 
+        [...prevPorts].some(port => !newPorts.has(port)) ||
+        [...newPorts].some(port => !prevPorts.has(port));
+
+      if (hasChanged) {
+        setInstances(statusData);
+        prevInstancesRef.current = statusData;
+        stateChangeEmitter.emit();
       } else {
-        setInstances(prev => {
-          const newInstances = mergeInstances(statusData);
-          // Check if the instance list has changed (excluding optimistic)
-          const prevReal = prev.filter(p => !p._optimistic);
-          const hasChanged = JSON.stringify(prevReal.map(p => p.port)) !== 
-                            JSON.stringify(statusData.map(p => p.port));
-          if (hasChanged) {
-            syncEmitter.emit();
-          }
-          return newInstances;
-        });
+        setInstances(statusData);
       }
       
       setError(null);
     } catch (error) {
-      setError(error.message);
+      setError(error);
       console.error('Error fetching instances:', error);
+      if (error.response?.status === 401) {
+        // Stop polling on auth error
+        return false;
+      }
     } finally {
       if (isInitial) {
         setLoading(false);
       }
     }
+    return true; // Continue polling if no auth error
   }, []);
 
-  // Subscribe to optimistic updates
   useEffect(() => {
-    const unsubscribe = instancesStore.subscribe(() => {
-      fetchInstances(false);
-    });
-    return unsubscribe;
-  }, [fetchInstances]);
+    let timer;
+    const startPolling = async () => {
+      const shouldContinue = await fetchInstances(true);
+      if (shouldContinue) {
+        timer = setInterval(async () => {
+          const shouldContinue = await fetchInstances(false);
+          if (!shouldContinue) {
+            clearInterval(timer);
+          }
+        }, interval);
+      }
+    };
 
-  useEffect(() => {
-    fetchInstances(true);
-    const timer = setInterval(() => fetchInstances(false), interval);
-    return () => clearInterval(timer);
+    startPolling();
+    return () => {
+      if (timer) clearInterval(timer);
+    };
   }, [fetchInstances, interval]);
 
-  return { instances, loading, error, refetch: fetchInstances };
+  const forceRefresh = useCallback(() => {
+    fetchInstances(true);
+  }, [fetchInstances]);
+
+  return { instances, loading, error, refetch: forceRefresh };
 };
 
 export const useConfigurations = () => {
@@ -120,7 +104,7 @@ export const useConfigurations = () => {
       setConfigs(configsData);
       setError(null);
     } catch (error) {
-      setError(error.message);
+      setError(error);
       console.error('Error fetching configs:', error);
     } finally {
       if (isInitial) {
@@ -129,9 +113,8 @@ export const useConfigurations = () => {
     }
   }, []);
 
-  // Subscribe to instance changes
   useEffect(() => {
-    const unsubscribe = syncEmitter.subscribe(() => {
+    const unsubscribe = stateChangeEmitter.subscribe(() => {
       fetchConfigs(false);
     });
     return unsubscribe;

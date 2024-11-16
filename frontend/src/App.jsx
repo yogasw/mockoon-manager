@@ -1,5 +1,5 @@
 // frontend/src/App.jsx
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Toaster } from 'react-hot-toast';
 import Header from './components/Header';
 import UploadConfig from './components/UploadConfig';
@@ -8,16 +8,21 @@ import InstanceList from './components/InstanceList';
 import ConfigList from './components/ConfigList';
 import AuthError from './components/AuthError';
 import InstanceListSkeleton from './components/skeletons/InstanceListSkeleton';
-import { useInstanceStatus, useConfigurations } from './hooks/useDataFetching';
+import { useInstanceStatus, useConfigurations, stateChangeEmitter } from './hooks/useDataFetching';
 
 const ConfigPane = () => {
   const { configs, loading, error, refetch } = useConfigurations();
+
+  const handleConfigChange = async () => {
+    await refetch(true);
+    stateChangeEmitter.emit();
+  };
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-white mb-6">Configuration Management</h2>
-        <UploadConfig onUploadSuccess={() => refetch(true)} />
+        <UploadConfig onUploadSuccess={handleConfigChange} />
       </div>
       {error && (
         <div className="p-3 bg-red-900/50 border border-red-700 rounded text-white text-sm">
@@ -35,22 +40,30 @@ const ConfigPane = () => {
             </div>
           </div>
         ) : (
-          <ConfigList configs={configs} onConfigDelete={() => refetch(true)} />
+          <ConfigList configs={configs} onConfigDelete={handleConfigChange} />
         )}
       </div>
     </div>
   );
 };
 
-const InstancePane = () => {
-  const { instances, loading, error, refetch } = useInstanceStatus();
-  const { configs } = useConfigurations();
+const InstancePane = ({ configs }) => {
+  const { instances, loading, error, refetch: refetchInstances } = useInstanceStatus();
+
+  const handleInstanceChange = useCallback(() => {
+    refetchInstances();
+    stateChangeEmitter.emit();
+  }, [refetchInstances]);
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-white mb-6">Instance Management</h2>
-        <NewInstance configs={configs} onStart={() => refetch(true)} />
+        <NewInstance 
+          configs={configs} 
+          instances={instances}
+          onStart={handleInstanceChange} 
+        />
       </div>
       <div className="bg-gray-800 rounded-lg shadow-lg">
         <div className="p-6">
@@ -64,7 +77,7 @@ const InstancePane = () => {
           ) : (
             <InstanceList 
               instances={instances} 
-              onStop={() => refetch(true)}
+              onStop={handleInstanceChange}
             />
           )}
         </div>
@@ -74,6 +87,16 @@ const InstancePane = () => {
 };
 
 function App() {
+  const { configs, error: configError } = useConfigurations();
+  const { error: instanceError } = useInstanceStatus();
+
+  // Check for authentication errors
+  const isAuthError = configError?.response?.status === 401 || instanceError?.response?.status === 401;
+
+  if (isAuthError) {
+    return <AuthError />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-900">
       <Toaster 
@@ -100,14 +123,11 @@ function App() {
       <Header />
       <div className="max-w-screen-2xl mx-auto p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Configuration Management Section */}
           <div className="bg-gray-800/50 p-6 rounded-lg">
             <ConfigPane />
           </div>
-          
-          {/* Instance Management Section */}
           <div className="bg-gray-800/50 p-6 rounded-lg">
-            <InstancePane />
+            <InstancePane configs={configs} />
           </div>
         </div>
       </div>
