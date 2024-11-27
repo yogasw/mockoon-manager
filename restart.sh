@@ -17,6 +17,21 @@ handle_error() {
     exit 1
 }
 
+# Function to wait for PM2 daemon
+wait_for_pm2() {
+    echo "Waiting for PM2 daemon to start..."
+    for i in {1..30}; do
+        if pm2 list &>/dev/null; then
+            echo "PM2 daemon is ready"
+            return 0
+        fi
+        echo "Waiting... ($i/30)"
+        sleep 1
+    done
+    echo "Timeout waiting for PM2 daemon"
+    exit 1
+}
+
 # Set error handler
 trap 'handle_error' ERR
 
@@ -24,10 +39,12 @@ trap 'handle_error' ERR
 echo "📦 Cleaning up existing PM2 processes..."
 pm2 kill || true
 pm2 cleardump || true
+sleep 2
 
-# Start PM2 daemon properly
+# Start PM2 daemon
 echo "📦 Starting PM2 daemon..."
-pm2 daemon > /dev/null 2>&1
+PM2_HOME=/root/.pm2 pm2 daemon
+wait_for_pm2
 
 # Store the root directory
 ROOT_DIR=$(pwd)
@@ -37,7 +54,7 @@ echo "🔄 Deploying backend..."
 check_directory "backend"
 cd backend
 echo "Installing backend dependencies..."
-npm install
+npm install --production
 echo "Starting backend with PM2..."
 pm2 start ecosystem.config.js
 
@@ -49,7 +66,7 @@ echo "🔄 Deploying frontend..."
 check_directory "frontend"
 cd frontend
 echo "Installing frontend dependencies..."
-npm install
+npm install --production
 echo "Installing serve globally..."
 npm install -g serve
 echo "Building frontend..."
@@ -66,12 +83,12 @@ pm2 save
 
 # Setup PM2 startup with systemd
 if ! systemctl is-enabled pm2-root.service &>/dev/null; then
-    pm2 startup systemd -u root --hp /root
+    env PATH=$PATH:/usr/bin pm2 startup systemd -u root --hp /root
     systemctl enable pm2-root
 fi
 
 # Ensure PM2 service is running
-systemctl start pm2-root
+systemctl restart pm2-root
 
 # Display running processes
 echo "✨ Deployment complete! Running processes:"
