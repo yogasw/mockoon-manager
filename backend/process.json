@@ -1,0 +1,11 @@
+{
+  "apps": [{
+    "name": "be-mockoon-manager",
+    "script": "server.js",
+    "watch": false,
+    "env": {
+      "NODE_ENV": "production"
+    },
+    "detach": true
+  }]
+}

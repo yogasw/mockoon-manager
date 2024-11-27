@@ -1,0 +1,11 @@
+{
+  "apps": [{
+    "name": "fe-mockoon-manager",
+    "script": "serve -s dist",
+    "watch": false,
+    "env": {
+      "NODE_ENV": "production"
+    },
+    "detach": true
+  }]
+}

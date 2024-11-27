@@ -52,7 +52,7 @@ cd backend
 echo "Installing backend dependencies..."
 npm install
 echo "Starting backend with PM2..."
-pm2 start ecosystem.config.js
+npm start
 
 # Return to root directory
 cd "$ROOT_DIR"
@@ -68,7 +68,7 @@ npm install -g serve
 echo "Building frontend..."
 npm run build
 echo "Starting frontend with PM2..."
-pm2 start ecosystem.config.js
+npm start
 
 # Save PM2 configuration
 echo "💾 Setting up PM2 startup..."
