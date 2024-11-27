@@ -17,18 +17,6 @@ handle_error() {
     exit 1
 }
 
-# Function to safely stop PM2 process
-stop_pm2_process() {
-    local process_name=$1
-    if pm2 list | grep -q "$process_name"; then
-        echo "Stopping $process_name..."
-        pm2 stop "$process_name" 2>/dev/null || true
-        pm2 delete "$process_name" 2>/dev/null || true
-    else
-        echo "Process $process_name not running"
-    fi
-}
-
 # Set error handler
 trap 'handle_error' ERR
 
@@ -37,16 +25,9 @@ echo "📦 Cleaning up existing PM2 processes..."
 pm2 kill || true
 pm2 cleardump || true
 
-# Start PM2 daemon with nohup
+# Start PM2 daemon properly
 echo "📦 Starting PM2 daemon..."
-nohup pm2 daemon > /dev/null 2>&1 & disown
-
-# Wait for PM2 to start
-sleep 2
-
-echo "📦 Stopping Mockoon Manager processes..."
-stop_pm2_process "fe-mockoon-manager"
-stop_pm2_process "be-mockoon-manager"
+pm2 daemon > /dev/null 2>&1
 
 # Store the root directory
 ROOT_DIR=$(pwd)
@@ -58,7 +39,7 @@ cd backend
 echo "Installing backend dependencies..."
 npm install
 echo "Starting backend with PM2..."
-nohup npm start > /dev/null 2>&1 & disown
+pm2 start ecosystem.config.js
 
 # Return to root directory
 cd "$ROOT_DIR"
@@ -74,22 +55,23 @@ npm install -g serve
 echo "Building frontend..."
 npm run build
 echo "Starting frontend with PM2..."
-nohup npm start > /dev/null 2>&1 & disown
+pm2 start ecosystem.config.js
 
 # Return to root directory
 cd "$ROOT_DIR"
 
-# Wait for processes to start
-sleep 3
-
-# Save and setup startup
+# Save PM2 configuration
 echo "💾 Setting up PM2 startup..."
-nohup pm2 save > /dev/null 2>&1 & disown
+pm2 save
 
+# Setup PM2 startup with systemd
 if ! systemctl is-enabled pm2-root.service &>/dev/null; then
-    nohup pm2 startup systemd -u root --hp /root > /dev/null 2>&1 & disown
+    pm2 startup systemd -u root --hp /root
     systemctl enable pm2-root
 fi
+
+# Ensure PM2 service is running
+systemctl start pm2-root
 
 # Display running processes
 echo "✨ Deployment complete! Running processes:"
