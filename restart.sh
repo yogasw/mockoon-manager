@@ -32,9 +32,17 @@ stop_pm2_process() {
 # Set error handler
 trap 'handle_error' ERR
 
-# Ensure PM2 is running in daemon mode
-echo "📦 Ensuring PM2 daemon is running..."
-pm2 ping > /dev/null || pm2 daemon
+# Kill existing PM2 daemon and clear dump
+echo "📦 Cleaning up existing PM2 processes..."
+pm2 kill || true
+pm2 cleardump || true
+
+# Start PM2 daemon with nohup
+echo "📦 Starting PM2 daemon..."
+nohup pm2 daemon > /dev/null 2>&1 & disown
+
+# Wait for PM2 to start
+sleep 2
 
 echo "📦 Stopping Mockoon Manager processes..."
 stop_pm2_process "fe-mockoon-manager"
@@ -50,7 +58,7 @@ cd backend
 echo "Installing backend dependencies..."
 npm install
 echo "Starting backend with PM2..."
-npm start
+nohup npm start > /dev/null 2>&1 & disown
 
 # Return to root directory
 cd "$ROOT_DIR"
@@ -66,33 +74,25 @@ npm install -g serve
 echo "Building frontend..."
 npm run build
 echo "Starting frontend with PM2..."
-npm start
+nohup npm start > /dev/null 2>&1 & disown
 
 # Return to root directory
 cd "$ROOT_DIR"
 
+# Wait for processes to start
+sleep 3
+
+# Save and setup startup
+echo "💾 Setting up PM2 startup..."
+nohup pm2 save > /dev/null 2>&1 & disown
+
+if ! systemctl is-enabled pm2-root.service &>/dev/null; then
+    nohup pm2 startup systemd -u root --hp /root > /dev/null 2>&1 & disown
+    systemctl enable pm2-root
+fi
+
 # Display running processes
 echo "✨ Deployment complete! Running processes:"
 pm2 list
-
-# Save PM2 process list and ensure startup script
-echo "💾 Saving PM2 process list and ensuring startup configuration..."
-pm2 save
-
-# Check if startup configuration exists, if not create it
-if ! systemctl is-enabled pm2-root.service &>/dev/null; then
-    echo "🔧 Configuring PM2 startup..."
-    pm2 startup systemd -u root --hp /root
-    # Apply the startup configuration
-    sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u root --hp /root
-fi
-
-# Ensure PM2 service is running
-echo "🔄 Ensuring PM2 service is running..."
-systemctl is-active --quiet pm2-root || systemctl start pm2-root
-systemctl enable pm2-root
-
-# Save again to ensure everything is synchronized
-pm2 save
 
 echo "🚀 Application has been restarted successfully!"
