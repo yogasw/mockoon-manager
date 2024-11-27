@@ -22,13 +22,19 @@ stop_pm2_process() {
     local process_name=$1
     if pm2 list | grep -q "$process_name"; then
         echo "Stopping $process_name..."
-        pm2 stop "$process_name"
-        pm2 delete "$process_name"
+        pm2 stop "$process_name" 2>/dev/null || true
+        pm2 delete "$process_name" 2>/dev/null || true
+    else
+        echo "Process $process_name not running"
     fi
 }
 
 # Set error handler
 trap 'handle_error' ERR
+
+# Ensure PM2 is running in daemon mode
+echo "📦 Ensuring PM2 daemon is running..."
+pm2 ping > /dev/null || pm2 daemon
 
 echo "📦 Stopping Mockoon Manager processes..."
 stop_pm2_process "fe-mockoon-manager"
@@ -69,8 +75,9 @@ cd "$ROOT_DIR"
 echo "✨ Deployment complete! Running processes:"
 pm2 list
 
-# Save PM2 process list
-echo "💾 Saving PM2 process list..."
+# Save PM2 process list and generate startup script
+echo "💾 Saving PM2 process list and generating startup script..."
 pm2 save
+pm2 startup
 
 echo "🚀 Application has been restarted successfully!"
