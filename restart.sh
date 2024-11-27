@@ -75,9 +75,24 @@ cd "$ROOT_DIR"
 echo "✨ Deployment complete! Running processes:"
 pm2 list
 
-# Save PM2 process list and generate startup script
-echo "💾 Saving PM2 process list and generating startup script..."
+# Save PM2 process list and ensure startup script
+echo "💾 Saving PM2 process list and ensuring startup configuration..."
 pm2 save
-pm2 startup
+
+# Check if startup configuration exists, if not create it
+if ! systemctl is-enabled pm2-root.service &>/dev/null; then
+    echo "🔧 Configuring PM2 startup..."
+    pm2 startup systemd -u root --hp /root
+    # Apply the startup configuration
+    sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u root --hp /root
+fi
+
+# Ensure PM2 service is running
+echo "🔄 Ensuring PM2 service is running..."
+systemctl is-active --quiet pm2-root || systemctl start pm2-root
+systemctl enable pm2-root
+
+# Save again to ensure everything is synchronized
+pm2 save
 
 echo "🚀 Application has been restarted successfully!"
