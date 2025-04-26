@@ -9,6 +9,8 @@ import ConfigList from './components/ConfigList';
 import AuthError from './components/AuthError';
 import InstanceListSkeleton from './components/skeletons/InstanceListSkeleton';
 import { useInstanceStatus, useConfigurations, stateChangeEmitter } from './hooks/useDataFetching';
+import Login from "./components/Login.jsx";
+import {AuthProvider} from "./contexts/AuthContext.jsx";
 
 const ConfigPane = () => {
   const { configs, loading, error, refetch } = useConfigurations();
@@ -29,7 +31,7 @@ const ConfigPane = () => {
           {error}
         </div>
       )}
-      <div> 
+      <div>
         {loading ? (
           <div className="bg-gray-800 rounded-lg shadow-lg p-6 animate-pulse">
             <div className="h-6 w-48 bg-gray-700 rounded mb-4"></div>
@@ -59,10 +61,10 @@ const InstancePane = ({ configs }) => {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-white mb-6">Instance Management</h2>
-        <NewInstance 
-          configs={configs} 
+        <NewInstance
+          configs={configs}
           instances={instances}
-          onStart={handleInstanceChange} 
+          onStart={handleInstanceChange}
         />
       </div>
       <div className="bg-gray-800 rounded-lg shadow-lg">
@@ -75,8 +77,8 @@ const InstancePane = ({ configs }) => {
           {loading ? (
             <InstanceListSkeleton />
           ) : (
-            <InstanceList 
-              instances={instances} 
+            <InstanceList
+              instances={instances}
               onStop={handleInstanceChange}
             />
           )}
@@ -85,8 +87,14 @@ const InstancePane = ({ configs }) => {
     </div>
   );
 };
-
 function App() {
+    return(
+        <AuthProvider>
+            <Home/>
+        </AuthProvider>
+    )
+}
+function Home() {
   const { configs, error: configError } = useConfigurations();
   const { error: instanceError } = useInstanceStatus();
 
@@ -94,12 +102,12 @@ function App() {
   const isAuthError = configError?.response?.status === 401 || instanceError?.response?.status === 401;
 
   if (isAuthError) {
-    return <AuthError />;
+    return <Login />;
   }
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           style: {

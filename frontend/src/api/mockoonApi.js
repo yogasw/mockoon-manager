@@ -2,15 +2,29 @@
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
-const API_KEY = import.meta.env.VITE_API_KEY;
+
 // Create axios instance with default config
 const api = axios.create({
     baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Barer ` + API_KEY
     }
 });
+
+// Add request interceptor to add auth header
+api.interceptors.request.use(
+    (config) => {
+        const auth = localStorage.getItem('auth');
+        if (auth) {
+            const { username, password } = JSON.parse(auth);
+            config.headers.Authorization = `Basic ${btoa(`${username}:${password}`)}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 // Add response interceptor for handling auth errors
 api.interceptors.response.use(
@@ -18,6 +32,7 @@ api.interceptors.response.use(
     error => {
         if (error.response?.status === 401) {
             console.error('Authentication failed');
+            localStorage.removeItem('auth');
         }
         return Promise.reject(error);
     }
@@ -64,4 +79,15 @@ export const stopMockServer = async (port) => {
 export const deleteConfig = async (filename) => {
     const response = await api.delete(`/api/mock/configs/${filename}`);
     return response.data;
+};
+
+export const login = async (credentials) => {
+    const response = await api.post('/api/auth', credentials);
+    if (response.data.success) {
+        localStorage.setItem('auth', JSON.stringify({
+            username: credentials.username,
+            password: credentials.password
+        }));
+    }
+    return response.data.success;
 };

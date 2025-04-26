@@ -89,6 +89,22 @@ ensureDirectoryExists(path.join(process.cwd(), process.env.LOGS_DIR || 'logs'));
 // Routes
 app.get('/api/health', healthCheckHandler);
 
+
+app.post('/api/auth', (req, res) => {
+  const { username, password } = req.body;
+  if (username && password) {
+    res.json({
+      success: true,
+      message: "Login successful"
+    });
+  } else {
+    res.status(401).json({
+      success: false,
+      message: 'Invalid credentials'
+    });
+  }
+});
+
 // Protected routes
 app.use('/api/mock', apiKeyAuth);
 app.post('/api/mock/start', startMockHandler);
