@@ -1,25 +1,8 @@
 // frontend/src/components/InstanceList.jsx
 import React, { useState } from 'react';
-import { Square, Heart, ExternalLink, Copy } from 'lucide-react';
+import { Power, Copy } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { stopMockServer } from '../api/mockoonApi';
-
-const HealthLink = ({ port }) => {
-  const healthUrl = `/${port}/healthz`;
-  
-  return (
-    <a
-      href={healthUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-1 text-green-400 hover:text-green-300 transition-colors font-medium group"
-    >
-      <Heart className="w-4 h-4" />
-      Health Check
-      <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-    </a>
-  );
-};
 
 const BaseUrl = ({ port }) => {
   const baseUrl = `${window.location.protocol}//${window.location.host}/${port}/`;
@@ -74,13 +57,12 @@ const InstanceItem = ({ instance, onStop }) => {
   return (
     <div className="bg-gray-700 rounded p-4">
       <div className="flex justify-between items-start gap-4 mb-2">
-        <HealthLink port={instance.port} />
         <button
           onClick={handleStop}
           disabled={isStopping}
           className="flex-shrink-0 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
         >
-          <Square className="w-4 h-4" />
+          <Power className="w-4 h-4" />
           {isStopping ? 'Stopping...' : 'Stop'}
         </button>
       </div>

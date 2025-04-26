@@ -188,7 +188,6 @@ chmod 755 backend/logs
 - `GET /api/mock/configs/:filename/download` - Download configuration
 
 ### Mock Instances
-- `GET /:port/healthz` - Health check for specific instance
 - `GET /:port/*` - Access mock API endpoints
 
 ## 🛠️ Tech Stack
@@ -212,8 +211,6 @@ chmod 755 backend/logs
   - Nginx
 
 ## 📝 Important Notes
-
-- Each mock instance automatically includes a `/healthz` endpoint
 - Configuration files are stored in the `backend/configs` directory
 - Logs are available in the `backend/logs` directory
 - The application uses polling for status updates (5-second interval)

@@ -3,7 +3,6 @@ import React, { useState, useRef } from 'react';
 import { Upload } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { uploadConfig } from '../api/mockoonApi';
-import { addHealthCheckEndpoint } from '../utils/configUtils';
 
 const UploadConfig = ({ onUploadSuccess }) => {
   const [isUploading, setIsUploading] = useState(false);
@@ -29,22 +28,16 @@ const UploadConfig = ({ onUploadSuccess }) => {
     try {
       // Read and modify the configuration
       const fileContent = await file.text();
-      const modifiedConfig = addHealthCheckEndpoint(fileContent);
-      
-      // Create a new file with modified content
-      const modifiedFile = new Blob([JSON.stringify(modifiedConfig, null, 2)], {
-        type: 'application/json'
-      });
-      
+
       const formData = new FormData();
-      formData.append('config', modifiedFile, file.name);
+      formData.append('config', file, file.name);
 
       await uploadConfig(formData);
       toast.success('Configuration uploaded and enhanced with health check endpoint');
       onUploadSuccess();
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Failed to upload configuration';
-      
+
       if (error.response?.status === 409) {
         toast.error('Please rename your configuration file and try again. This filename already exists.', {
           duration: 5000,
@@ -62,7 +55,7 @@ const UploadConfig = ({ onUploadSuccess }) => {
     <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
       <h2 className="text-lg font-semibold mb-4 text-white">Upload Configuration</h2>
       <div className="space-y-4">
-        <label 
+        <label
           className={`
             flex items-center gap-2 cursor-pointer inline-block px-4 py-2 
             bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors

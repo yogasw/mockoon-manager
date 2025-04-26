@@ -4,7 +4,7 @@ import { getMockStatus, getConfigs } from '../api/mockoonApi';
 
 export const createEventEmitter = () => {
   const listeners = new Set();
-  
+
   return {
     emit: () => {
       listeners.forEach(listener => listener());
@@ -31,10 +31,10 @@ export const useInstanceStatus = (interval = 5000) => {
       }
 
       const statusData = await getMockStatus();
-      
+
       const prevPorts = new Set(prevInstancesRef.current.map(i => i.port));
       const newPorts = new Set(statusData.map(i => i.port));
-      const hasChanged = prevPorts.size !== newPorts.size || 
+      const hasChanged = prevPorts.size !== newPorts.size ||
         [...prevPorts].some(port => !newPorts.has(port)) ||
         [...newPorts].some(port => !prevPorts.has(port));
 
@@ -45,7 +45,7 @@ export const useInstanceStatus = (interval = 5000) => {
       } else {
         setInstances(statusData);
       }
-      
+
       setError(null);
     } catch (error) {
       setError(error);

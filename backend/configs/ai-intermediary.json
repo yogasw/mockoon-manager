@@ -1,0 +1,110 @@
+{
+  "uuid": "85946fdc-9b5e-466a-8c35-f24a8db97218",
+  "lastMigration": 32,
+  "name": "Ai intermediary",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 35157,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "5f5b0d00-0000-0000-0000-000000000001",
+      "documentation": "Health check endpoint",
+      "method": "get",
+      "endpoint": "healthz",
+      "responses": [
+        {
+          "uuid": "5f5b0d00-0000-0000-0000-000000000002",
+          "body": "{\n  \"status\": \"OK\",\n  \"timestamp\": \"{{now}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "946ae759-273e-47e6-b8ce-7f7d5a52b6a8",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "",
+      "responses": [
+        {
+          "uuid": "87474447-a75f-43b0-9839-ff0a939cd834",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "946ae759-273e-47e6-b8ce-7f7d5a52b6a8"
+    }
+  ],
+  "proxyMode": true,
+  "proxyHost": "https://llm.qiscus.com/api/v1/openai/",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}

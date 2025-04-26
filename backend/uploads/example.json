@@ -1,0 +1,113 @@
+{
+  "uuid": "9a7753d0-4c88-11ee-be56-0242ac120002",
+  "lastMigration": 27,
+  "name": "Example API",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 9000,
+  "routes": [
+    {
+      "uuid": "5f5b0d00-0000-0000-0000-000000000001",
+      "documentation": "Health check endpoint",
+      "method": "get",
+      "endpoint": "healthz",
+      "responses": [
+        {
+          "uuid": "5f5b0d00-0000-0000-0000-000000000002",
+          "body": "{\n  \"status\": \"OK\",\n  \"timestamp\": \"{{now}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "default": true
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "uuid": "5f5b0d00-0000-0000-0000-000000000003",
+      "documentation": "Generate random UUID",
+      "method": "get",
+      "endpoint": "generate",
+      "responses": [
+        {
+          "uuid": "5f5b0d00-0000-0000-0000-000000000004",
+          "body": "{\n  \"uuid\": \"{{faker 'string.uuid'}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "default": true
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "uuid": "5f5b0d00-0000-0000-0000-000000000005",
+      "documentation": "Validate key endpoint",
+      "method": "post",
+      "endpoint": "validate",
+      "responses": [
+        {
+          "uuid": "5f5b0d00-0000-0000-0000-000000000006",
+          "body": "{\n  \"verify\": true,\n  \"message\": \"Key is valid\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Valid Key",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "key",
+              "value": "xyz",
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "default": false
+        },
+        {
+          "uuid": "5f5b0d00-0000-0000-0000-000000000007",
+          "body": "{\n  \"verify\": false,\n  \"message\": \"Invalid key\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Invalid Key",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "default": true
+        }
+      ],
+      "enabled": true
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "proxyReqHeaders": [],
+  "proxyResHeaders": []
+}

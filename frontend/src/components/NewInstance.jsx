@@ -29,7 +29,7 @@ const NewInstance = ({ configs, instances, onStart }) => {
 
   const handleStart = async () => {
     if (!selectedConfig) return;
-    
+
     try {
       setIsStarting(true);
       const port = await getAvailablePort();
