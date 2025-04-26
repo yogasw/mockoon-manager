@@ -33,8 +33,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('auth');
-    setUser(null);
-    setIsAuthenticated(false);
+    window.location.reload();
   };
 
   return (
@@ -50,4 +49,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};
