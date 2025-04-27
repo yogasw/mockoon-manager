@@ -53,9 +53,9 @@ const InstancePane = ({ configs }) => {
   const { instances, loading, error, refetch: refetchInstances } = useInstanceStatus();
 
   const handleInstanceChange = useCallback(() => {
-    refetchInstances();
-    stateChangeEmitter.emit();
-  }, [refetchInstances]);
+      refetchInstances();
+      stateChangeEmitter.emit();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -96,7 +96,7 @@ function App() {
 }
 function Home() {
   const { configs, error: configError } = useConfigurations();
-  const { error: instanceError } = useInstanceStatus();
+  const { error: instanceError } = useInstanceStatus(true);
 
   // Check for authentication errors
   const isAuthError = configError?.response?.status === 401 || instanceError?.response?.status === 401;
