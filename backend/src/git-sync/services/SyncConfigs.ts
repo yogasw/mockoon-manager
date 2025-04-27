@@ -32,13 +32,13 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
     fs.writeFileSync(sshKeyPath, SSH_KEY);
     fs.chmodSync(sshKeyPath, '600');
 
-    // Configure Git
-    await git.addConfig('core.sshCommand', `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no`);
-
     const gitDir = path.join(configDir, '.git');
 
     // Initialize Git if not already initialized
     if (!fs.existsSync(gitDir)) {
+        // Configure Git
+        await git.addConfig('core.sshCommand', `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no`);
+
         console.log('Initializing Git repository...');
         await git.init();
 
