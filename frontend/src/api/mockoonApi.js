@@ -81,6 +81,11 @@ export const deleteConfig = async (filename) => {
     return response.data;
 };
 
+export const syncToGit = async () => {
+    const response = await api.post('/api/mock/sync');
+    return response.data;
+};
+
 export const login = async (credentials) => {
     const response = await api.post('/api/auth', credentials);
     if (response.data.success) {

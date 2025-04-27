@@ -12,6 +12,7 @@ A web-based management interface for running and managing multiple [Mockoon CLI]
 - 🎯 Dynamic port allocation
 - 💫 Real-time status updates
 - 🔗 Easy access to mock API endpoints
+- 🔄 Git sync for configuration files
 
 ## 💡 Getting Started with Mockoon
 
@@ -69,8 +70,20 @@ npm install
 ```bash
 # Backend (.env)
 PORT=3500
-UPLOAD_DIR=uploads
+HOSTNAME=0.0.0.0
+CORS_ORIGIN=*
+
+# API Key for authentication
+API_KEY=admin:admin
+
+# Directory Configuration
 CONFIGS_DIR=configs
+UPLOAD_DIR=uploads
+LOGS_DIR=logs
+
+# Git Configuration (Required for Git sync)
+GIT_URL=git@github.com:your-username/your-repo.git
+SSH_KEY=-----BEGIN OPENSSH PRIVATE KEY-----\nYour SSH private key here\n-----END OPENSSH PRIVATE KEY-----
 
 # Frontend (.env)
 VITE_API_URL=/api
@@ -168,6 +181,8 @@ mockoon-manager/
 - All mock instances run on ports between 9001-9999
 - Upload size is limited to 5MB
 - Only JSON configuration files are accepted
+- API key authentication is required for all management endpoints
+- Git sync requires proper SSH key configuration
 - Ensure proper file permissions:
 ```bash
 chmod 755 backend/configs
@@ -186,6 +201,7 @@ chmod 755 backend/logs
 - `POST /api/mock/stop` - Stop a mock instance
 - `DELETE /api/mock/configs/:filename` - Delete configuration
 - `GET /api/mock/configs/:filename/download` - Download configuration
+- `POST /api/mock/sync` - Sync configurations to Git repository
 
 ### Mock Instances
 - `GET /:port/*` - Access mock API endpoints
@@ -205,6 +221,7 @@ chmod 755 backend/logs
   - Express
   - Multer (file uploads)
   - PM2 (process management)
+  - Simple Git (Git operations)
 - **Mock Server**: 
   - Mockoon CLI
 - **Reverse Proxy**: 
@@ -221,6 +238,7 @@ chmod 755 backend/logs
 - Ensure your system has sufficient ports available in the 9001-9999 range
 - Monitor the logs directory for individual instance logs
 - Nginx configuration is crucial for proper routing
+- Git sync requires proper SSH key configuration in the backend environment
 
 ## 🔧 Troubleshooting
 
@@ -244,6 +262,12 @@ pm2 logs
 # List PM2 processes
 pm2 list
 ```
+
+4. Git Sync Issues:
+- Ensure SSH key is properly formatted in the environment variable
+- Check if the Git repository URL is correct
+- Verify that the SSH key has proper permissions in the repository
+- Check backend logs for detailed error messages
 
 ## 🤝 Contributing
 
