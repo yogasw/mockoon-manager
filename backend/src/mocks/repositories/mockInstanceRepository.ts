@@ -1,4 +1,4 @@
-import { MockInstance } from '../../types';
+import { MockInstance } from '@/types';
 
 class MockInstanceRepository {
   private instances: Map<number, MockInstance> = new Map();

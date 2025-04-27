@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { StopMockResponse, ApiResponse } from '../../types';
-import { mockInstanceRepository } from '../../repositories/mock/mockInstanceRepository';
+import {mockInstanceRepository} from "@/mocks/repositories/mockInstanceRepository";
+import {ApiResponse, StopMockResponse} from "@/types";
 
 export function stopMockHandler(req: Request, res: Response<ApiResponse<StopMockResponse>>) {
   const { port } = req.body;

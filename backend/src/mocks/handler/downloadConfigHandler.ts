@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { ApiResponse } from '../../types';
-import { fileRepository } from '../../repositories/mock/fileRepository';
+import {ApiResponse} from "@/types";
+import {fileRepository} from "@/mocks/repositories/fileRepository";
 
 export async function downloadConfigHandler(req: Request, res: Response<ApiResponse>) {
   const { filename } = req.params;

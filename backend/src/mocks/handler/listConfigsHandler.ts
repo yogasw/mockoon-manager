@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ApiResponse } from '@/types';
-import { fileRepository } from '../../repositories/mock/fileRepository';
+import {fileRepository} from "@/mocks/repositories/fileRepository";
 
 export async function listConfigsHandler(req: Request, res: Response<ApiResponse<any[]>>) {
   try {

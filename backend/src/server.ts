@@ -3,17 +3,18 @@ import cors from 'cors';
 import multer from 'multer';
 import path from 'path';
 import { config } from 'dotenv';
-import { checkMockoonCli } from './utils/cliChecker';
-import { apiKeyAuth } from './middlewares/apiKeyAuth';
-import { healthCheckHandler } from './handlers/health/healthCheckHandler';
-import { startMockHandler } from './handlers/mock/startMockHandler';
-import { stopMockHandler } from './handlers/mock/stopMockHandler';
-import { statusMockHandler } from './handlers/mock/statusMockHandler';
-import { uploadMockHandler } from './handlers/mock/uploadMockHandler';
-import { listConfigsHandler } from './handlers/mock/listConfigsHandler';
-import { deleteConfigHandler } from './handlers/mock/deleteConfigHandler';
-import { downloadConfigHandler } from './handlers/mock/downloadConfigHandler';
-import { ensureDirectoryExists } from './utils/fileUtils';
+import { checkMockoonCli } from '@/utils/cliChecker';
+import { apiKeyAuth } from '@/middlewares/apiKeyAuth';
+import { ensureDirectoryExists } from '@/utils/fileUtils';
+import {startMockHandler} from "@/mocks/handler/startMockHandler";
+import {stopMockHandler} from "@/mocks/handler/stopMockHandler";
+import {statusMockHandler} from "@/mocks/handler/statusMockHandler";
+import {listConfigsHandler} from "@/mocks/handler/listConfigsHandler";
+import {deleteConfigHandler} from "@/mocks/handler/deleteConfigHandler";
+import {uploadMockHandler} from "@/mocks/handler/uploadMockHandler";
+import {downloadConfigHandler} from "@/mocks/handler/downloadConfigHandler";
+import {syncToGit} from "@/git-sync/handler/gitSync";
+import {healthCheckHandler} from "@/health/healthCheckHandler";
 
 // Load environment variables
 config();
@@ -114,6 +115,7 @@ app.post('/api/mock/upload', upload.single('config'), uploadMockHandler);
 app.get('/api/mock/configs', listConfigsHandler);
 app.delete('/api/mock/configs/:filename', deleteConfigHandler);
 app.get('/api/mock/configs/:filename/download', downloadConfigHandler);
+app.post('/api/mock/sync', syncToGit);
 
 // Start server
 const PORT = parseInt(process.env.PORT || '3500', 10);

@@ -2,11 +2,11 @@ import { Request, Response } from 'express';
 import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { StartMockResponse, ApiResponse } from '../../types';
-import { mockInstanceRepository } from '../../repositories/mock/mockInstanceRepository';
-import { fileRepository } from '../../repositories/mock/fileRepository';
-import { isPortSafe, isPortInUse } from '../../utils/portUtils';
 import * as console from "node:console";
+import {isPortInUse, isPortSafe} from "@/utils/portUtils";
+import {ApiResponse, StartMockResponse} from "@/types";
+import {fileRepository} from "@/mocks/repositories/fileRepository";
+import {mockInstanceRepository} from "@/mocks/repositories/mockInstanceRepository";
 
 export async function startMockHandler(req: Request, res: Response<ApiResponse<StartMockResponse>>) {
   const { port, configFile } = req.body;
