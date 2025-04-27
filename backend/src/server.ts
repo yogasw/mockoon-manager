@@ -13,8 +13,8 @@ import {listConfigsHandler} from "@/mocks/handler/listConfigsHandler";
 import {deleteConfigHandler} from "@/mocks/handler/deleteConfigHandler";
 import {uploadMockHandler} from "@/mocks/handler/uploadMockHandler";
 import {downloadConfigHandler} from "@/mocks/handler/downloadConfigHandler";
-import {syncToGit} from "@/git-sync/handler/gitSync";
 import {healthCheckHandler} from "@/health/healthCheckHandler";
+import {SyncToGitHttpHandler} from "@/git-sync/handler/http";
 
 // Load environment variables
 config();
@@ -115,7 +115,7 @@ app.post('/api/mock/upload', upload.single('config'), uploadMockHandler);
 app.get('/api/mock/configs', listConfigsHandler);
 app.delete('/api/mock/configs/:filename', deleteConfigHandler);
 app.get('/api/mock/configs/:filename/download', downloadConfigHandler);
-app.post('/api/mock/sync', syncToGit);
+app.post('/api/mock/sync', SyncToGitHttpHandler);
 
 // Start server
 const PORT = parseInt(process.env.PORT || '3500', 10);
