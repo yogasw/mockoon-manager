@@ -133,15 +133,15 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
         await git.push('origin', gitBranch);
     }
 
-    // // Clean up SSH key
-    // try {
-    //     if (fs.existsSync(sshKeyPath)) {
-    //         fs.unlinkSync(sshKeyPath);
-    //         console.log('SSH key cleaned up successfully.');
-    //     }
-    // } catch (cleanupError: any) {
-    //     console.error('Error cleaning up SSH key:', cleanupError?.message);
-    // }
+    // Clean up SSH key
+    try {
+        if (fs.existsSync(sshKeyPath)) {
+            fs.unlinkSync(sshKeyPath);
+            console.log('SSH key cleaned up successfully.');
+        }
+    } catch (cleanupError: any) {
+        console.error('Error cleaning up SSH key:', cleanupError?.message);
+    }
 
     return null;
 
